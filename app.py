@@ -79,57 +79,72 @@ def dashboard():
     pie_fig = go.Figure(data=[go.Pie(
         labels=list(category_totals.keys()),
         values=list(category_totals.values()),
-        hole=0.4,
-        marker_colors=['#1A56A0','#2ecc71','#e74c3c','#f39c12','#9b59b6','#1abc9c','#e67e22','#95a5a6']
+        hole=0.45,
+        pull=[0.05] * len(category_totals),
+        marker_colors=['#1A56A0','#2ecc71','#e74c3c','#f39c12','#9b59b6','#1abc9c','#e67e22','#95a5a6'],
+        textinfo='label+percent',
+        textposition='outside' 
     )])
     pie_fig.update_layout(
         title='Spending by Category',
+        showlegend=False,
         paper_bgcolor='rgba(0,0,0,0)',
-        plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Arial', size=13),
+        font=dict(family='Arial', size=12),
         margin=dict(t=50, b=20, l=20, r=20)
-    )
+    )  
 
     # Chart 2 — Daily spending trend (Line chart)
     daily_totals = defaultdict(float)
     for e in expenses:
-        daily_totals[str(e.date)] += e.amount
+        day_str = e.date.strftime('%Y-%m-%d') if hasattr(e.date, 'strftime') else str(e.date)[:10]
+        daily_totals[day_str] += e.amount
     sorted_dates = sorted(daily_totals.keys())
 
     line_fig = go.Figure(data=[go.Scatter(
         x=sorted_dates,
         y=[daily_totals[d] for d in sorted_dates],
         mode='lines+markers',
+        fill='tozeroy',
+        fillcolor='rgba(26, 86, 160, 0.1)',
         line=dict(color='#1A56A0', width=3),
-        marker=dict(size=8, color='#1A56A0')
+        marker=dict(size=10, color='#1A56A0', symbol='circle')
     )])
     line_fig.update_layout(
         title='Daily Spending Trend',
         xaxis_title='Date',
         yaxis_title='Amount (₹)',
+        xaxis=dict(type='category', tickangle=0),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
         font=dict(family='Arial', size=13),
-        margin=dict(t=50, b=40, l=40, r=20)
+        margin=dict(t=50, b=60, l=60, r=20)
     )
 
     # Chart 3 — Top categories bar chart
     sorted_cats = sorted(category_totals.items(), key=lambda x: x[1], reverse=True)
+    short_names = {'Entertainment': 'Entertain.', 'Education': 'Education', 
+               'Shopping': 'Shopping', 'Travel': 'Travel', 
+               'Food': 'Food', 'Bills': 'Bills', 'Health': 'Health', 'Other': 'Other'}
+
     bar_fig = go.Figure(data=[go.Bar(
-        x=[c[0] for c in sorted_cats],
+        x=[short_names.get(c[0], c[0]) for c in sorted_cats],
         y=[c[1] for c in sorted_cats],
-        marker_color='#1A56A0'
+        marker_color=['#1A56A0','#2ecc71','#e74c3c','#f39c12','#9b59b6','#1abc9c','#e67e22','#95a5a6'],
+        text=[f'₹{c[1]:.0f}' for c in sorted_cats],
+        textposition='outside'
     )])
     bar_fig.update_layout(
         title='Total Spent per Category',
-        xaxis_title='Category',
+        xaxis_title='',
         yaxis_title='Amount (₹)',
+        xaxis=dict(tickangle=0, tickfont=dict(size=11)),
+        yaxis=dict(range=[0, max(category_totals.values()) * 1.2]),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        font=dict(family='Arial', size=13),
-        margin=dict(t=50, b=40, l=40, r=20)
+        font=dict(family='Arial', size=12),
+        margin=dict(t=50, b=40, l=50, r=20),
+        bargap=0.4
     )
-
     # Summary stats
     total_spent = sum(e.amount for e in expenses)
     total_expenses = len(expenses)
