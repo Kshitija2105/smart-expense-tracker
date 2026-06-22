@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="form-card">
+    <h2>Add New Expense</h2>
+    <form action="/add" method="POST">
+        <input type="text" name="description" id="description" 
+               placeholder="e.g. Swiggy dinner" required
+               oninput="autoPredict(this.value)">
+        <input type="number" name="amount" placeholder="Amount (₹)" step="0.01" required>
+        <select name="category" id="category-select">
+            {% for cat in categories %}
+                <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="date" value="{{ today }}" required>
+        <button type="submit">Add Expense</button>
+    </form>
+    
+    <script>
+    let timeout;
+    function autoPredict(value) {
+        clearTimeout(timeout);
+        if (value.length < 3) return;
+        timeout = setTimeout(() => {
+            fetch('/predict-category', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ description: value })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const select = document.getElementById('category-select');
+                for (let option of select.options) {
+                    if (option.value === data.category) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            });
+        }, 400);
+    }
+    </script>
+</div>
+
+<div class="table-card">
+    <h2>Recent Expenses</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h2 style="margin:0;">Recent Expenses</h2>
+        <a href="/export" class="export-btn">⬇️ Export CSV</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.description }}</td>
+                <td>₹{{ expense.amount }}</td>
+                <td><span class="badge">{{ expense.category }}</span></td>
+                <td>{{ expense.date }}</td>
+                <td><a href="/delete/{{ expense.id }}" class="delete-btn">Delete</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+expenses.db
+models/category_model.pkl
+.DS_Store
+*.pkl

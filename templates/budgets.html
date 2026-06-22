@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="form-card">
+    <h2>Set Monthly Budget</h2>
+    <form action="/budgets" method="POST">
+        <select name="category">
+            {% for cat in categories %}
+                <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="limit" placeholder="Monthly limit (₹)" step="0.01" required>
+        <button type="submit">Set Budget</button>
+    </form>
+</div>
+
+{% if budget_data %}
+<div class="table-card">
+    <h2>Budget Tracker</h2>
+    {% for b in budget_data %}
+    <div class="budget-item">
+        <div class="budget-header">
+            <span class="budget-cat">{{ b.category }}</span>
+            <span class="budget-amt">₹{{ "%.0f"|format(b.spent) }} / ₹{{ "%.0f"|format(b.limit) }}</span>
+            {% if b.status == 'danger' %}
+                <span class="badge-alert danger">⚠️ {{ b.percent }}% used</span>
+            {% elif b.status == 'warning' %}
+                <span class="badge-alert warning">🔔 {{ b.percent }}% used</span>
+            {% else %}
+                <span class="badge-alert good">✅ {{ b.percent }}% used</span>
+            {% endif %}
+        </div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill {{ b.status }}" style="width: {{ b.percent }}%"></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

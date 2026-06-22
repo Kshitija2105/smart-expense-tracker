@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap;">
+    <div class="stat-card">
+        <p class="stat-label">Total Spent</p>
+        <p class="stat-value">₹{{ "%.0f"|format(total_spent) }}</p>
+    </div>
+    <div class="stat-card">
+        <p class="stat-label">Total Expenses</p>
+        <p class="stat-value">{{ total_expenses }}</p>
+    </div>
+    <div class="stat-card">
+        <p class="stat-label">Top Category</p>
+        <p class="stat-value">{{ top_category }}</p>
+    </div>
+</div>
+
+<div class="chart-grid">
+    <div class="chart-card" id="pie-chart"></div>
+    <div class="chart-card" id="bar-chart"></div>
+</div>
+
+<div class="chart-card-full" id="line-chart"></div>
+
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script>
+    Plotly.newPlot('pie-chart', {{ pie_chart | safe }}.data, {{ pie_chart | safe }}.layout, {responsive: true});
+    Plotly.newPlot('bar-chart', {{ bar_chart | safe }}.data, {{ bar_chart | safe }}.layout, {responsive: true});
+    Plotly.newPlot('line-chart', {{ line_chart | safe }}.data, {{ line_chart | safe }}.layout, {responsive: true});
+</script>
+
+{% endblock %}
