@@ -3,7 +3,7 @@
 
 <div style="display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap;">
     <div class="stat-card">
-        <p class="stat-label">Total Spent</p>
+        <p class="stat-label">Total Spent (All Time)</p>
         <p class="stat-value">₹{{ "%.0f"|format(total_spent) }}</p>
     </div>
     <div class="stat-card">
@@ -13,6 +13,17 @@
     <div class="stat-card">
         <p class="stat-label">Top Category</p>
         <p class="stat-value">{{ top_category }}</p>
+    </div>
+    <div class="stat-card">
+        <p class="stat-label">Monthly Budget Used</p>
+        <p class="stat-value">₹{{ "%.0f"|format(total_budget_spent) }} / ₹{{ "%.0f"|format(total_budget_limit) }}</p>
+        <div style="margin-top:10px; background:#e2e8f0; border-radius:8px; height:8px; overflow:hidden;">
+            <div style="width:{{ budget_percent }}%; height:100%; border-radius:8px;
+                background: {% if budget_percent >= 90 %}#e74c3c{% elif budget_percent >= 70 %}#f39c12{% else %}#2ecc71{% endif %};
+                transition: width 0.3s ease;">
+            </div>
+        </div>
+        <p style="font-size:12px; color:#888; margin-top:6px;">{{ budget_percent }}% of monthly budget used</p>
     </div>
 </div>
 

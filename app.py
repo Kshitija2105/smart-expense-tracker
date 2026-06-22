@@ -149,15 +149,29 @@ def dashboard():
     total_spent = sum(e.amount for e in expenses)
     total_expenses = len(expenses)
     top_category = max(category_totals, key=category_totals.get) if category_totals else 'N/A'
-
+    
+    # Budget summary for dashboard
+    all_budgets = Budget.query.all()
+    total_budget_limit = sum(b.monthly_limit for b in all_budgets)
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    total_budget_spent = db.session.query(db.func.sum(Expense.amount)).filter(
+        db.extract('month', Expense.date) == current_month,
+        db.extract('year', Expense.date) == current_year
+    ).scalar() or 0
+    budget_percent = round((total_budget_spent / total_budget_limit) * 100, 1) if total_budget_limit > 0 else 0
+    
     return render_template('dashboard.html',
-        pie_chart=json.dumps(pie_fig, cls=plotly.utils.PlotlyJSONEncoder),
-        line_chart=json.dumps(line_fig, cls=plotly.utils.PlotlyJSONEncoder),
-        bar_chart=json.dumps(bar_fig, cls=plotly.utils.PlotlyJSONEncoder),
-        total_spent=total_spent,
-        total_expenses=total_expenses,
-        top_category=top_category
-    )
+                           pie_chart=json.dumps(pie_fig, cls=plotly.utils.PlotlyJSONEncoder),
+                           line_chart=json.dumps(line_fig, cls=plotly.utils.PlotlyJSONEncoder),
+                           bar_chart=json.dumps(bar_fig, cls=plotly.utils.PlotlyJSONEncoder),
+                           total_spent=total_spent,
+                           total_expenses=total_expenses,
+                           top_category=top_category,
+                           total_budget_limit=total_budget_limit,
+                           total_budget_spent=total_budget_spent,
+                           budget_percent=budget_percent
+                           )
 
 @app.route('/budgets', methods=['GET', 'POST'])
 def budgets():
